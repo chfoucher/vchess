@@ -1,12 +1,18 @@
 <script setup>
+import { reactive } from "vue";
 import Cell from "./Cell.vue";
+
+const state = reactive({
+  board: "Reine",
+});
+
 </script>
 
 <template>
   <div class="greetings">
     <h1 class="green">Vuejs chess</h1>
     <h3>Jouons aux échecs !</h3>
-    <Cell content="Roi" />    
+    <Cell :content="state.board" />    
   </div>
 </template>
 
