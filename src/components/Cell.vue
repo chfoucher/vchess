@@ -1,9 +1,20 @@
 <script setup>
 const props = defineProps({
-    content: String,
+    piece: String,
 });
 </script>
 
 <template>
-    <h3>{{  content }}</h3>
+  <div>
+    <h3>{{  piece }}</h3>
+  </div>
 </template>
+
+<style scoped>
+div {
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  background-color: white;
+}
+</style>
