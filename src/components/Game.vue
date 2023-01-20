@@ -1,13 +1,7 @@
 <script setup>
 import { reactive } from "vue";
 import Cell from "./Cell.vue";
-
-const ROOK = "tour";
-const KNIGHT = "cavalier";
-const BISHOP = "fou";
-const QUEEN = "dame";
-const KING = "roi";
-const PAWN = "pion";
+import * as utils from "../utils";
 const state = reactive({
   board: initBoard(),
 });
@@ -23,12 +17,12 @@ function initBoard() {
       }
       currentBlack = !currentBlack;
   }
-  const agency = [ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK];
+  const agency = [utils.ROOK, utils.KNIGHT, utils.BISHOP, utils.QUEEN, utils.KING, utils.BISHOP, utils.KNIGHT, utils.ROOK];
   for (var c = 0; c < 8; c++) {
-      board[0][c].piece = agency[c];
-      board[1][c].piece = PAWN;
-      board[6][c].piece = PAWN;
-      board[7][c].piece = agency[c];
+      board[0][c].piece = { type: agency[c], black: true };
+      board[1][c].piece = { type: utils.PAWN, black: true };
+      board[6][c].piece = { type: utils.PAWN, black: false };
+      board[7][c].piece = { type: agency[c], black: false };
   }
   return board;
 }
@@ -62,6 +56,10 @@ h3 {
 
 table {
   background-color: darkgray;
+}
+
+td {
+  padding: 0;
 }
 
 .greetings h1,
