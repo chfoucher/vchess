@@ -4,6 +4,7 @@ import Cell from "./Cell.vue";
 import * as utils from "../utils";
 const state = reactive({
   board: initBoard(),
+  selection: null,
 });
 
 function initBoard() {
@@ -27,6 +28,16 @@ function initBoard() {
   return board;
 }
 
+function onClick(e) {
+  if (state.selection) {
+    state.board[state.selection.r][state.selection.c].selected = false;
+    state.selection = null;
+  } else {
+    state.selection = e;
+    state.board[state.selection.r][state.selection.c].selected = true;
+  }
+}
+
 </script>
 
 <template>
@@ -36,7 +47,7 @@ function initBoard() {
     <table>
       <tr v-for="row in state.board">
         <td v-for="cell in row">
-          <Cell v-bind="cell" />
+          <Cell v-bind="cell" @click="onClick"/>
         </td>
       </tr>
     </table>
