@@ -1,11 +1,12 @@
 <script setup>
 const props = defineProps({
     piece: String,
+    black: Boolean,
 });
 </script>
 
 <template>
-  <div>
+  <div :class="{ black }">
     <h3>{{  piece }}</h3>
   </div>
 </template>
@@ -15,6 +16,10 @@ div {
   width: 60px;
   height: 60px;
   cursor: pointer;
-  background-color: white;
+  background-color: #ffce9e;
+}
+
+div.black {
+  background-color: #d18b47;
 }
 </style>
