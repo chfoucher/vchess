@@ -3,39 +3,9 @@ import { reactive } from "vue";
 import Cell from "./Cell.vue";
 import * as utils from "../utils";
 const state = reactive({
-  board: initBoard(),
+  board: utils.initBoard(),
   selection: null,
 });
-
-function initBoard() {
-  const board = [];
-  let currentBlack = false;
-  for (var r = 0; r < 8; r++) {
-    board[r] = [];
-    for (var c = 0; c < 8; c++) {
-      board[r][c] = { r, c, black: currentBlack };
-      currentBlack = !currentBlack;
-    }
-    currentBlack = !currentBlack;
-  }
-  const agency = [
-    utils.ROOK,
-    utils.KNIGHT,
-    utils.BISHOP,
-    utils.QUEEN,
-    utils.KING,
-    utils.BISHOP,
-    utils.KNIGHT,
-    utils.ROOK,
-  ];
-  for (var c = 0; c < 8; c++) {
-    board[0][c].piece = { type: agency[c], black: true };
-    board[1][c].piece = { type: utils.PAWN, black: true };
-    board[6][c].piece = { type: utils.PAWN, black: false };
-    board[7][c].piece = { type: agency[c], black: false };
-  }
-  return board;
-}
 
 function onClick(e) {
   if (state.selection) {
