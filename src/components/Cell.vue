@@ -1,6 +1,6 @@
 <script setup>
 import * as utils from "../utils";
-import { computed } from 'vue';
+import { computed } from "vue";
 const props = defineProps({
   black: Boolean,
   c: Number,
@@ -9,22 +9,21 @@ const props = defineProps({
   selected: Boolean,
 });
 const imgSrc = computed(() => {
-  const i = (2 * (props.piece.type));
-  const j = props.piece.black?1:0;
+  const i = 2 * props.piece.type;
+  const j = props.piece.black ? 1 : 0;
   const k = i + j;
   return utils.images[k];
 });
 const emit = defineEmits(["click"]);
 
 function onClick() {
-  emit("click", { r: props.r, c: props.c })
+  emit("click", { r: props.r, c: props.c });
 }
-
 </script>
 
 <template>
   <div :class="{ black, selected }" @click="onClick">
-    <img v-if="piece" :src="imgSrc"/>
+    <img v-if="piece" :src="imgSrc" />
   </div>
 </template>
 
