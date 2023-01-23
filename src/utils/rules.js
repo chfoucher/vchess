@@ -38,5 +38,5 @@ export function initBoard() {
 }
 
 function ajouteOrigine(couleur, r, c) {
-  mvtsPossibles[couleur].push({origine: { r, c }, destinations:[]});
+  mvtsPossibles[couleur].push({ origine: { r, c }, destinations: [] });
 }

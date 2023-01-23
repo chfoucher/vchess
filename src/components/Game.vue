@@ -1,19 +1,20 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import Cell from "./Cell.vue";
 import * as utils from "../utils";
-const state = reactive({
-  board: utils.initBoard(),
-  selection: null,
-});
+const board = ref(utils.initBoard());
+let selection = null;
 
-function onClick(e) {
-  if (state.selection) {
-    state.board[state.selection.r][state.selection.c].selected = false;
-    state.selection = null;
+function onClick(target) {
+  if (selection) {
+    board.value[target.r][target.c].piece =
+      board.value[selection.r][selection.c].piece;
+    board.value[selection.r][selection.c].piece = null;
+    board.value[selection.r][selection.c].selected = false;
+    selection = null;
   } else {
-    state.selection = e;
-    state.board[state.selection.r][state.selection.c].selected = true;
+    selection = target;
+    board.value[selection.r][selection.c].selected = true;
   }
 }
 </script>
@@ -23,8 +24,8 @@ function onClick(e) {
     <h1 class="green">Vuejs chess</h1>
     <h3>Jouons aux échecs !</h3>
     <table>
-      <tr v-for="row in state.board">
-        <td v-for="cell in row">
+      <tr v-for="(row, i) in board" :key="i">
+        <td v-for="(cell, j) in row" :key="`${i}-${j}`">
           <Cell v-bind="cell" @click="onClick" />
         </td>
       </tr>
