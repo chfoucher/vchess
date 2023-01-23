@@ -1,4 +1,5 @@
 <script setup>
+import Debug from "./components/Debug.vue";
 import Game from "./components/Game.vue";
 import TheWelcome from "./components/TheWelcome.vue";
 </script>
@@ -6,6 +7,7 @@ import TheWelcome from "./components/TheWelcome.vue";
 <template>
   <header>
     <div class="wrapper">
+      <Debug />
       <Game msg="You did it!" />
     </div>
   </header>

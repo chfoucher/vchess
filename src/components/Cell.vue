@@ -17,6 +17,7 @@ const imgSrc = computed(() => {
 const emit = defineEmits(["click"]);
 
 function onClick() {
+  console.log("click", props);
   emit("click", { r: props.r, c: props.c });
 }
 </script>
