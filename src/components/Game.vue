@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import Cell from "./Cell.vue";
 import viseur_noir from "../assets/viseur_noir.svg";
 import viseur_blanc from "../assets/viseur_blanc.svg";
@@ -41,18 +41,23 @@ const REINE = 6;
 const NOIR = "noir";
 const BLANC = "blanc";
 let joueurActif = BLANC;
-
 const mvtsPossibles = [];
 let indexOrigine;
+let historique;
 let board;
 let selection = null;
 const message = ref("Clique sur une case !");
+const annulationDesactivee = computed(() => {
+  return historique.value.length === 0;
+});
 
 function initPartie() {
+  historique = ref([]);
   board = ref(initBoard());
   joueurActif = BLANC;
   calculeMouvements();
   showStatus();
+  //annulationDesactivee.value = true;
 }
 initPartie();
 
@@ -91,18 +96,22 @@ function showStatus() {
     }
 }
 
-function onClick(target) {
+function onClick(caseChoisie) {
   console.log(selection);
   if (selection) {
-    if (destinationAutorisee(target.r, target.c)) {
+    if (destinationAutorisee(caseChoisie.r, caseChoisie.c)) {
+      historique.value.push({
+                origine: {r: selection.r, c:selection.c, piece: board.value[selection.r][selection.c].piece},
+                destination: {r: caseChoisie.r, c: caseChoisie.c, piece: board.value[caseChoisie.r][caseChoisie.c].piece}
+            });
       const adversaire = (joueurActif === BLANC)?NOIR:BLANC;
       retireOrigine(joueurActif, selection.r, selection.c);
-      if (board.value[target.r][target.c].piece) retireOrigine(adversaire, target.r, target.c);
-      ajouteOrigine(joueurActif, target.r, target.c);
-      board.value[target.r][target.c].piece =
+      if (board.value[caseChoisie.r][caseChoisie.c].piece) retireOrigine(adversaire, caseChoisie.r, caseChoisie.c);
+      ajouteOrigine(joueurActif, caseChoisie.r, caseChoisie.c);
+      board.value[caseChoisie.r][caseChoisie.c].piece =
       board.value[selection.r][selection.c].piece;
-      promotion(target);
-      roque(selection.r, selection.c, target.r, target.c);
+      promotion(caseChoisie);
+      roque(selection.r, selection.c, caseChoisie.r, caseChoisie.c);
       board.value[selection.r][selection.c].piece = null;
       joueurActif = adversaire;
       calculeMouvements();
@@ -110,8 +119,8 @@ function onClick(target) {
     board.value[selection.r][selection.c].selected = false;
     selection = null;
   } else {
-    if (origineAutorisee(target)) {
-      selection = target;
+    if (origineAutorisee(caseChoisie)) {
+      selection = caseChoisie;
       board.value[selection.r][selection.c].selected = true;
     }
   }
@@ -351,7 +360,7 @@ function destinationAutorisee(dr, dc) {
   <div>
     <button id="btnNouveau">Nouvelle partie</button>
     <button id="btnEnregistre">Enregistre partie</button>
-    <button id="btnAnnule">Annule</button>
+    <button id="btnAnnule" :disabled="annulationDesactivee">Annule</button>
     {{  message }}
   </div>
 </template>
