@@ -43,8 +43,8 @@ const BLANC = "blanc";
 let joueurActif = BLANC;
 const mvtsPossibles = [];
 let indexOrigine;
-let historique;
-let board;
+let historique = ref([]);
+let board = ref(initBoard());
 let selection = null;
 const message = ref("Clique sur une case !");
 const annulationDesactivee = computed(() => {
@@ -52,19 +52,16 @@ const annulationDesactivee = computed(() => {
 });
 
 function initPartie() {
-  historique = ref([]);
-  board = ref(initBoard());
+  historique.value = [];
   joueurActif = BLANC;
+  initBoardLayout();
   calculeMouvements();
   showStatus();
-  //annulationDesactivee.value = true;
 }
 initPartie();
 
 function initBoard() {
   const board = [];
-  mvtsPossibles[NOIR] = [];
-  mvtsPossibles[BLANC] = [];
   let currentBlack = false;
   for (var r = 0; r < 8; r++) {
     board[r] = [];
@@ -74,18 +71,26 @@ function initBoard() {
     }
     currentBlack = !currentBlack;
   }
+  return board;
+}
+
+function initBoardLayout() {
+  mvtsPossibles[NOIR] = [];
+  mvtsPossibles[BLANC] = [];
   const layout = [TOUR, CHEVAL, FOU, REINE, ROI, FOU, CHEVAL, TOUR];
   for (var c = 0; c < 8; c++) {
-    board[0][c].piece = { type: layout[c], couleur: NOIR };
+    board.value[0][c].piece = { type: layout[c], couleur: NOIR };
     ajouteOrigine(NOIR, 0, c);
-    board[1][c].piece = { type: PION, couleur: NOIR };
+    board.value[1][c].piece = { type: PION, couleur: NOIR };
     ajouteOrigine(NOIR, 1, c);
-    board[6][c].piece = { type: PION, couleur: BLANC };
+    board.value[6][c].piece = { type: PION, couleur: BLANC };
     ajouteOrigine(BLANC, 6, c);
-    board[7][c].piece = { type: layout[c], couleur: BLANC };
+    board.value[7][c].piece = { type: layout[c], couleur: BLANC };
     ajouteOrigine(BLANC, 7, c);
+    for (let r = 2; r < 6; r++) {
+      board.value[r][c].piece = null;
+    }
   }
-  return board;
 }
 
 function showStatus() {
@@ -465,7 +470,7 @@ function destinationAutorisee(dr, dc) {
     </table>
   </div>
   <div>
-    <button id="btnNouveau">Nouvelle partie</button>
+    <button id="btnNouveau" @click="initPartie">Nouvelle partie</button>
     <button id="btnEnregistre">Enregistre partie</button>
     <button id="btnAnnule" :disabled="annulationDesactivee" @click="onAnnule">
       Annule
