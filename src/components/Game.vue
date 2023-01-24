@@ -46,14 +46,16 @@ const mvtsPossibles = [];
 let indexOrigine;
 let board;
 let selection = null;
+const message = ref("Clique sur une case !");
 
 function initPartie() {
   board = ref(initBoard());
   joueurActif = BLANC;
   calculeMouvements();
+  showStatus();
 }
 initPartie();
-console.log(mvtsPossibles);
+
 function initBoard() {
   const board = [];
   mvtsPossibles[NOIR] = [];
@@ -81,6 +83,14 @@ function initBoard() {
   return board;
 }
 
+function showStatus() {
+    if (selection) {
+        message.value = "Sélectionne la destination";
+    } else {
+      message.value = `Aux ${joueurActif}s de jouer`;
+    }
+}
+
 function onClick(target) {
   console.log(selection);
   if (selection) {
@@ -105,6 +115,7 @@ function onClick(target) {
       board.value[selection.r][selection.c].selected = true;
     }
   }
+  showStatus();
 }
 
 function promotion(destination) {
@@ -336,6 +347,12 @@ function destinationAutorisee(dr, dc) {
         </td>
       </tr>
     </table>
+  </div>
+  <div>
+    <button id="btnNouveau">Nouvelle partie</button>
+    <button id="btnEnregistre">Enregistre partie</button>
+    <button id="btnAnnule">Annule</button>
+    {{  message }}
   </div>
 </template>
 
