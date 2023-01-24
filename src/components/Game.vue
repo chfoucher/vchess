@@ -10,22 +10,32 @@ const CHEVAL = 5;
 const REINE = 6;
 const NOIR = "noir";
 const BLANC = "blanc";
-let joueurActif = BLANC;
 const mvtsPossibles = [];
 let indexOrigine;
-let selection = null;
 
-const state = reactive({ historique: [], board: initBoard(), message: "Clique sur une case !" });
+const state = reactive({
+  historique: [],
+  board: initBoard(),
+  message: "Clique sur une case !",
+  joueurActif: BLANC,
+  selection: null,
+});
 const annulationDesactivee = computed(() => {
   return state.historique.length === 0;
+});
+const message = computed(() => {
+  if (state.selection) {
+    return "Sélectionne la destination";
+  } else {
+    return `Aux ${state.joueurActif}s de jouer`;
+  }
 });
 
 function initPartie() {
   state.historique = [];
-  joueurActif = BLANC;
+  state.joueurActif = BLANC;
   initBoardLayout();
   calculeMouvements();
-  showStatus();
 }
 initPartie();
 
@@ -62,22 +72,14 @@ function initBoardLayout() {
   }
 }
 
-function showStatus() {
-  if (selection) {
-    state.message = "Sélectionne la destination";
-  } else {
-    state.message = `Aux ${joueurActif}s de jouer`;
-  }
-}
-
 function onClick(caseChoisie) {
-  if (selection) {
+  if (state.selection) {
     if (destinationAutorisee(caseChoisie.r, caseChoisie.c)) {
       state.historique.push({
         origine: {
-          r: selection.r,
-          c: selection.c,
-          piece: state.board[selection.r][selection.c].piece,
+          r: state.selection.r,
+          c: state.selection.c,
+          piece: state.board[state.selection.r][state.selection.c].piece,
         },
         destination: {
           r: caseChoisie.r,
@@ -85,28 +87,27 @@ function onClick(caseChoisie) {
           piece: state.board[caseChoisie.r][caseChoisie.c].piece,
         },
       });
-      const adversaire = joueurActif === BLANC ? NOIR : BLANC;
-      retireOrigine(joueurActif, selection.r, selection.c);
+      const adversaire = state.joueurActif === BLANC ? NOIR : BLANC;
+      retireOrigine(state.joueurActif, state.selection.r, state.selection.c);
       if (state.board[caseChoisie.r][caseChoisie.c].piece)
         retireOrigine(adversaire, caseChoisie.r, caseChoisie.c);
-      ajouteOrigine(joueurActif, caseChoisie.r, caseChoisie.c);
+      ajouteOrigine(state.joueurActif, caseChoisie.r, caseChoisie.c);
       state.board[caseChoisie.r][caseChoisie.c].piece =
-        state.board[selection.r][selection.c].piece;
+        state.board[state.selection.r][state.selection.c].piece;
       promotion(caseChoisie);
-      roque(selection.r, selection.c, caseChoisie.r, caseChoisie.c);
-      state.board[selection.r][selection.c].piece = null;
-      joueurActif = adversaire;
+      roque(state.selection.r, state.selection.c, caseChoisie.r, caseChoisie.c);
+      state.board[state.selection.r][state.selection.c].piece = null;
+      state.joueurActif = adversaire;
       calculeMouvements();
     }
-    state.board[selection.r][selection.c].selected = false;
-    selection = null;
+    state.board[state.selection.r][state.selection.c].selected = false;
+    state.selection = null;
   } else {
     if (origineAutorisee(caseChoisie)) {
-      selection = caseChoisie;
-      state.board[selection.r][selection.c].selected = true;
+      state.selection = caseChoisie;
+      state.board[state.selection.r][state.selection.c].selected = true;
     }
   }
-  showStatus();
 }
 
 function onAnnule() {
@@ -134,9 +135,8 @@ function onAnnule() {
   ajouteOrigine(couleur, orig.r, orig.c);
   state.board[orig.r][orig.c].piece = orig.piece;
   state.board[dst.r][dst.c].piece = dst.piece;
-  joueurActif = joueurActif === BLANC ? NOIR : BLANC;
+  state.joueurActif = state.joueurActif === BLANC ? NOIR : BLANC;
   calculeMouvements();
-  showStatus();
 }
 
 function promotion(destination) {
@@ -194,14 +194,14 @@ function retireOrigine(couleur, r, c) {
 function calculeMouvementsPion(r, c) {
   const resultat = [];
   let dr, dc;
-  const direction = joueurActif === BLANC ? -1 : 1;
+  const direction = state.joueurActif === BLANC ? -1 : 1;
   // Avance de 1
   dr = r + direction;
   dc = c;
   if (dr <= 7 && dr >= 0 && !state.board[dr][dc].piece)
     resultat.push({ r: dr, c: dc });
   // Avance de 2
-  const startingRow = joueurActif === BLANC ? 6 : 1;
+  const startingRow = state.joueurActif === BLANC ? 6 : 1;
   if (r === startingRow) {
     dr = r + direction * 2;
     if (dr <= 7 && dr >= 0 && !state.board[dr][dc].piece)
@@ -215,7 +215,7 @@ function calculeMouvementsPion(r, c) {
     dr >= 0 &&
     dc >= 0 &&
     state.board[dr][dc].piece &&
-    state.board[dr][dc].piece.couleur != joueurActif
+    state.board[dr][dc].piece.couleur != state.joueurActif
   )
     resultat.push({ r: dr, c: dc });
   // Mange à droite
@@ -225,7 +225,7 @@ function calculeMouvementsPion(r, c) {
     dr >= 0 &&
     dc <= 7 &&
     state.board[dr][dc].piece &&
-    state.board[dr][dc].piece.couleur != joueurActif
+    state.board[dr][dc].piece.couleur != state.joueurActif
   )
     resultat.push({ r: dr, c: dc });
   return resultat;
@@ -240,7 +240,7 @@ function calculeMouvementsCercle(mvts, r, c) {
     if (dr <= 7 && dr >= 0 && dc <= 7 && dc >= 0) {
       if (
         !state.board[dr][dc].piece ||
-        state.board[dr][dc].piece.couleur != joueurActif
+        state.board[dr][dc].piece.couleur != state.joueurActif
       ) {
         resultat.push({ r: dr, c: dc });
       }
@@ -268,7 +268,7 @@ function calculeMouvementsCavalier(r, c) {
 
 function calculeRoque(r, c) {
   const resultat = [];
-  const startingRow = joueurActif === BLANC ? 7 : 0;
+  const startingRow = state.joueurActif === BLANC ? 7 : 0;
   if (
     r == startingRow &&
     c == 4 &&
@@ -316,7 +316,7 @@ function calculeMouvementsLigne(mvts, r, c) {
     dc = c + mvt[1];
     while (dr <= 7 && dr >= 0 && dc <= 7 && dc >= 0) {
       if (state.board[dr][dc].piece) {
-        if (state.board[dr][dc].piece.couleur != joueurActif) {
+        if (state.board[dr][dc].piece.couleur != state.joueurActif) {
           // Prise
           resultat.push({ r: dr, c: dc });
         }
@@ -391,7 +391,7 @@ function calculeMouvementsOrigine(r, c) {
 }
 
 function calculeMouvements() {
-  const possibles = mvtsPossibles[joueurActif];
+  const possibles = mvtsPossibles[state.joueurActif];
   for (const mouvement of possibles) {
     mouvement.destinations = calculeMouvementsOrigine(
       mouvement.origine.r,
@@ -401,7 +401,7 @@ function calculeMouvements() {
 }
 
 function origineAutorisee({ r, c }) {
-  const cases = mvtsPossibles[joueurActif];
+  const cases = mvtsPossibles[state.joueurActif];
   for (let i = 0; i < cases.length; i++) {
     if (
       cases[i].origine.r === r &&
@@ -416,7 +416,7 @@ function origineAutorisee({ r, c }) {
 }
 
 function destinationAutorisee(dr, dc) {
-  const destinations = mvtsPossibles[joueurActif][indexOrigine].destinations;
+  const destinations = mvtsPossibles[state.joueurActif][indexOrigine].destinations;
   for (let i = 0; i < destinations.length; i++) {
     if (destinations[i].r === dr && destinations[i].c === dc) {
       return true;
@@ -443,7 +443,7 @@ function destinationAutorisee(dr, dc) {
     <button id="btnAnnule" :disabled="annulationDesactivee" @click="onAnnule">
       Annule
     </button>
-    {{ state.message }}
+    {{ message }}
   </div>
 </template>
 
