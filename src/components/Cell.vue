@@ -10,7 +10,7 @@ const props = defineProps({
 });
 const imgSrc = computed(() => {
   const i = 2 * props.piece.type;
-  const j = props.piece.black ? 0 : 1;
+  const j = (props.piece.couleur === "noir") ? 0 : 1;
   const k = i + j;
   return utils.images[k];
 });
