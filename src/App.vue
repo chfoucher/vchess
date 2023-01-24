@@ -6,7 +6,7 @@ import TheWelcome from "./components/TheWelcome.vue";
 <template>
   <header>
     <div class="wrapper">
-      <Game msg="You did it!" />
+      <Game />
     </div>
   </header>
 
